@@ -1,4 +1,8 @@
 function [eT0]=et0_compute(T,w)
+% Linear detrending, compute 30 years'movmean,
+% et0=max(movmean)-min(movmean)
+%input:target matrix T
+%output:eT0 (natural variation of the input dataset).
     [a,b,t]=size(T);
     TT=reshape(T,[a*b,t]);
     T_detrend=detrend(TT);
@@ -8,7 +12,11 @@ function [eT0]=et0_compute(T,w)
 
 end
 
-function [dT,p,Sig_t,R_B,R_D,RR]=REA(T,m,n,et0,ts)
+function [dT,Sig_t,R_B,R_D,RR]=REA(T,m,n,et0,ts)
+%% REA
+% INPUT:T (target matrix),m (constant,contributes to RB),n(constant,contributes to RD),et0 (natural variation),ts(iter times)
+% OUTPUT:dT (output dataset),Sig_t (quantity of uncertainty),
+%%%%%%% R_B/R_D (measure of the collective model reliability with respect to the two criteria separately),RR (Weight matrix)
     [a,b,c,k]=size(T);
     B=zeros(a,b,c,k,'single');
 
@@ -46,7 +54,6 @@ function [dT,p,Sig_t,R_B,R_D,RR]=REA(T,m,n,et0,ts)
         S4=S4+RR(:,i).*((T(:,:,:,i)-dT).^2);
     end
     Sig_t=(single(S4)./single(S2)).^(1/2);
-    p=single(S3)./single(S2);
     SB=sum(B,4);
     R_B=single(SB)./k;
     SD=sum(D,4);
